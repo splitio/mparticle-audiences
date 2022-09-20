@@ -14,6 +14,74 @@ exports.handler = async (event) => {
     const body = JSON.parse(event.body);
     console.log(JSON.stringify(body));
 
+    if(body.type === "module_registration_request") {
+        console.log("module_registration_request");
+
+        const json = {
+            type: "module_registration_response",
+            id: "fa136f6f-fc70-4504-8979-26a4a375f95b",
+            timestamp_ms: new Date().getTime(),
+            sdk_version: "2.2.0",
+            name: "Split",
+            version: "1.0",
+            description: "<a href=\"https://www.split.io/\" target=\"_blank\">Split</a> is the leading Feature Delivery Platform for engineering teams that want to confidently release features fast. Manage feature flags, monitor production releases, and experiment to create the best customer experience.",
+            permissions:
+            {
+                "allow_access_mpid": true
+            },
+            audience_processing_registration:
+            {
+                account_settings:
+                [
+                    {
+                        type: "text",
+                        id: "apiKey",
+                        name: "Admin API Key",
+                        description: "Admin API Key for creating, updating, and deleting segments.",
+                        visible: true,
+                        required: true,
+                        confidential: true
+                    },
+                    {
+                        type: "text",
+                        id: "workspaceId",
+                        name: "Workspace Id",
+                        description: "Which workspace should have new segments?",
+                        visible: true,
+                        required: true,
+                        confidential: true
+                    },
+                    {
+                        type: "text",
+                        id: "environmentId",
+                        name: "Environment Id",
+                        description: "Which environment should include audience keys?",
+                        visible: true,
+                        required: true,
+                        confidential: true
+                    },
+                    {
+                        type: "text",
+                        id: "trafficTypeId",
+                        name: "Traffic Type Id",
+                        description: "Should correspond to an 'mpid' traffic type.  Create one if necessary.",
+                        visible: true,
+                        required: true,
+                        confidential: true,
+                    }                                    
+                ],
+            },
+            firehose_version: "2.2.0"
+        }
+
+        const response = {
+            statusCode: 200,
+            body: json
+        }
+
+        return response;
+    }
+
     const account = body.account;
     if(!account || account.account_id !== "split") {
         const response = {
@@ -54,12 +122,12 @@ exports.handler = async (event) => {
     }
 
     if(body.type === "audience_subscription_request") {
+        const srcName = body.audience_name;
+        const srcId = body.audience_id;
+
+        const dstName = convertForSplit(srcName);
+
         if(body.action === "add") {
-            const srcName = body.audience_name;
-            const srcId = body.audience_id;
-
-            const dstName = convertForSplit(srcName);
-
             const url = 'https://api.split.io/internal/api/v2/segments/ws/' 
                 + account_settings.workspaceId + '/trafficTypes/' + account_settings.trafficTypeId;
             const d = {
@@ -86,6 +154,11 @@ exports.handler = async (event) => {
                 body: 'created Split segment with srcName: ' + dstName + ' (' + srcId + ')'
             }
             return response;
+        } else if (body.action === "remove") {
+            console.log('audience_subscription_request.delete not yet implemented');
+
+            // must fully delete segment; just looking for a 200
+
         }
     } else if (body.type === "audience_membership_change_request") {
 
@@ -109,9 +182,11 @@ exports.handler = async (event) => {
                 if(action === 'add') {
                     console.log('adding to segment: ' + segment_name);
 
-                    const activateUrl = 'https://api.split.io/internal/api/v2/segments/' + account_settings.environmentId + '/' + segment_name;
+                    const activateUrl = 'https://api.split.io/internal/api/v2/segments/' 
+                        + account_settings.environmentId + '/' + segment_name;
  
-                    console.log('activating segment in environment ' + account_settings.environmentId);
+                    console.log('activating segment in environment ');
+                    console.log(activateUrl);
                     await axios({
                         method: 'post',
                         data: {},
@@ -142,6 +217,27 @@ exports.handler = async (event) => {
                     }).catch(function (error) {
                         console.log(error);
                     });                
+                } else if (action === 'delete') {
+                    console.log('deleting from segment: ' + segment_name);
+
+                    const url = 'https://api.split.io/internal/api/v2/segments/' 
+                        + account_settings.environmentId + '/' + segment_name + '/removeKeys';
+
+                    const d = {'keys': [mpid]};
+
+                    console.log('removing mpid from segment: ' + segment_name);
+                    await axios({
+                        method: 'put',
+                        data: d,
+                        url: url,
+                        headers:{
+                            'Authorization': 'Bearer ' + account_settings.apiKey                       
+                        }                    
+                    }).then(function (response) {
+                        console.log(response);
+                    }).catch(function (error) {
+                        console.log(error);
+                    });                
                 }
             }
         }
@@ -157,7 +253,7 @@ exports.handler = async (event) => {
     const response = {
         statusCode: 200,
         body: JSON.stringify('Hello from Split!'),
-    };
+    }
     return response;
 };
 
