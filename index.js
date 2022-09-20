@@ -83,13 +83,13 @@ exports.handler = async (event) => {
     }
 
     const account = body.account;
-    if(!account || account.account_id !== "split") {
-        const response = {
-            statusCode: 400,
-            body: 'unsupported account id; must be split'
-        }
-        return response;
-    }
+    // if(!account || account.account_id !== 7703) {
+    //     const response = {
+    //         statusCode: 400,
+    //         body: 'unsupported account id; must be 7703, but saw ' + account.account_id
+    //     }
+    //     return response;
+    // }
 
     const account_settings = account.account_settings;
     if(!account_settings.apiKey) {
@@ -121,7 +121,13 @@ exports.handler = async (event) => {
         return response;
     }
 
+    let result = {
+        "id" : "c2555fb5-53b4-407e-b1ec-7dbbbae182e6",
+        "timestamp_ms" : new Date().getTime(),
+        "firehose_version" : "2.8.0",
+    }
     if(body.type === "audience_subscription_request") {
+        result.type = "audience_subscription_request";
         const srcName = body.audience_name;
         const srcId = body.audience_id;
 
@@ -149,16 +155,15 @@ exports.handler = async (event) => {
                 console.log(error);
             });
 
+            console.log('created Split segment with srcName: ' + dstName + ' (' + srcId + ')');
+            console.log(JSON.stringify(result));
             const response = {
                 statusCode: 200,
-                body: 'created Split segment with srcName: ' + dstName + ' (' + srcId + ')'
+                body: JSON.stringify(result)
             }
             return response;
         } else if (body.action === "remove") {
             console.log('audience_subscription_request remove');
-
-            // const dUrl = 'https://api.split.io/internal/api/v2/segments/' 
-            //     + account_settings.environmentId + '/' + dstName;
 
             const url = 'https://api.split.io/internal/api/v2/segments/ws/' 
                 + account_settings.workspaceId + '/' + dstName;
@@ -176,14 +181,16 @@ exports.handler = async (event) => {
                 console.log(error);
             });    
 
+            console.log('deleted split with name: ' + dstName);
+            console.log(JSON.stringify(result));
             const response = {
                 statusCode: 200,
-                body: 'deleted split with name: ' + dstName
+                body: JSON.stringify(result)
             }
             return response;
         }
     } else if (body.type === "audience_membership_change_request") {
-
+        result.type = "audience_membership_change_request";
         if(!body.user_profiles) {
             const response = {
                 statusCode: 400,
@@ -271,10 +278,11 @@ exports.handler = async (event) => {
         }
         return response;
     }
-
+    
+    console.log(JSON.stringify(result));
     const response = {
         statusCode: 200,
-        body: JSON.stringify('Hello from Split!'),
+        body: JSON.stringify(result)
     }
     return response;
 };
