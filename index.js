@@ -155,10 +155,32 @@ exports.handler = async (event) => {
             }
             return response;
         } else if (body.action === "remove") {
-            console.log('audience_subscription_request.delete not yet implemented');
+            console.log('audience_subscription_request remove');
 
-            // must fully delete segment; just looking for a 200
+            // const dUrl = 'https://api.split.io/internal/api/v2/segments/' 
+            //     + account_settings.environmentId + '/' + dstName;
 
+            const url = 'https://api.split.io/internal/api/v2/segments/ws/' 
+                + account_settings.workspaceId + '/' + dstName;
+
+            console.log('removing segment in all environments: ' + dstName);
+            await axios({
+                method: 'delete',
+                url: url,
+                headers:{
+                    'Authorization': 'Bearer ' + account_settings.apiKey
+                }
+            }).then(function(response) {
+                console.log(response);
+            }).catch(function (error) {
+                console.log(error);
+            });    
+
+            const response = {
+                statusCode: 200,
+                body: 'deleted split with name: ' + dstName
+            }
+            return response;
         }
     } else if (body.type === "audience_membership_change_request") {
 
