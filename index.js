@@ -155,7 +155,25 @@ exports.handler = async (event) => {
                 console.log(error);
             });
 
-            console.log('created Split segment with srcName: ' + dstName + ' (' + srcId + ')');
+            const activateUrl = 'https://api.split.io/internal/api/v2/segments/' 
+                + account_settings.environmentId + '/' + dstName;
+
+            console.log('activating segment in environment ');
+            console.log(activateUrl);
+            await axios({
+                method: 'post',
+                data: {},
+                url: activateUrl,
+                headers:{
+                    'Authorization': 'Bearer ' + account_settings.apiKey
+                }
+            }).then(function (response) {
+                console.log(response);
+            }).catch(function (error) {
+                console.log(error);
+            });      
+
+            console.log('created Split segment ' + dstName + ' with srcName: ' + srcName + ' (' + srcId + ')');
             console.log('statusCode: ' + 200);
             console.log(JSON.stringify(result));
             const response = {
@@ -214,25 +232,7 @@ exports.handler = async (event) => {
                 const action = audience.action;
                 const segment_name = convertForSplit(audience.audience_name);
                 if(action === 'add') {
-                    console.log('adding to segment: ' + segment_name);
-
-                    const activateUrl = 'https://api.split.io/internal/api/v2/segments/' 
-                        + account_settings.environmentId + '/' + segment_name;
- 
-                    console.log('activating segment in environment ');
-                    console.log(activateUrl);
-                    await axios({
-                        method: 'post',
-                        data: {},
-                        url: activateUrl,
-                        headers:{
-                            'Authorization': 'Bearer ' + account_settings.apiKey
-                        }
-                    }).then(function (response) {
-                        console.log(response);
-                    }).catch(function (error) {
-                        console.log(error);
-                    });                
+                    console.log('adding to segment: ' + segment_name);          
 
                     const url = 'https://api.split.io/internal/api/v2/segments/' 
                         + account_settings.environmentId + '/' + segment_name + '/uploadKeys?replace=false';
