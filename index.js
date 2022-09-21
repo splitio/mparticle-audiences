@@ -127,7 +127,7 @@ exports.handler = async (event) => {
         "firehose_version" : "2.8.0",
     }
     if(body.type === "audience_subscription_request") {
-        result.type = "audience_subscription_request";
+        result.type = "audience_subscription_response";
         const srcName = body.audience_name;
         const srcId = body.audience_id;
 
@@ -192,7 +192,7 @@ exports.handler = async (event) => {
             return response;
         }
     } else if (body.type === "audience_membership_change_request") {
-        result.type = "audience_membership_change_request";
+        result.type = "audience_membership_change_response";
         if(!body.user_profiles) {
             console.log('no user_profiles found in request');
             console.log('statusCode: ' + 200);
