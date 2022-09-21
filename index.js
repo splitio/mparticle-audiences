@@ -83,13 +83,13 @@ exports.handler = async (event) => {
     }
 
     const account = body.account;
-    // if(!account || account.account_id !== 7703) {
-    //     const response = {
-    //         statusCode: 400,
-    //         body: 'unsupported account id; must be 7703, but saw ' + account.account_id
-    //     }
-    //     return response;
-    // }
+    if(!account) {
+        const response = {
+            statusCode: 400,
+            body: 'invalid request: no account'
+        }
+        return response;
+    }
 
     const account_settings = account.account_settings;
     if(!account_settings.apiKey) {
@@ -278,7 +278,7 @@ exports.handler = async (event) => {
         }
         return response;
     }
-    
+
     console.log(JSON.stringify(result));
     const response = {
         statusCode: 200,
