@@ -133,6 +133,8 @@ exports.handler = async (event) => {
 
         const dstName = convertForSplit(srcName);
 
+        let statusCode = 200;
+        let message = '';
         if(body.action === "add") {
             const url = 'https://api.split.io/internal/api/v2/segments/ws/' 
                 + account_settings.workspaceId + '/trafficTypes/' + account_settings.trafficTypeId;
@@ -152,9 +154,20 @@ exports.handler = async (event) => {
             }).then(function (response) {
                 console.log(response);
             }).catch(function (error) {
-                console.log(error);
-            });
+                console.log(error);                       
+                statusCode = error.response.status,
+                message = error.response.data.message
+            });           
 
+            if(statusCode !== 200) {
+                const response = {
+                    statusCode: statusCode,
+                    body: message
+                }
+                console.log('returning error response: ' + JSON.stringify(response));
+                return response;
+            }
+                    
             const activateUrl = 'https://api.split.io/internal/api/v2/segments/' 
                 + account_settings.environmentId + '/' + dstName;
 
@@ -170,9 +183,19 @@ exports.handler = async (event) => {
             }).then(function (response) {
                 console.log(response);
             }).catch(function (error) {
-                console.log(error);
-            });      
+                console.log(error);                       
+                statusCode = error.response.status,
+                message = error.response.data.message
+            });           
 
+            if(statusCode !== 200) {
+                const response = {
+                    statusCode: statusCode,
+                    body: message
+                }
+                console.log('returning error response: ' + JSON.stringify(response));
+                return response;
+            }
             console.log('created Split segment ' + dstName + ' with srcName: ' + srcName + ' (' + srcId + ')');
             console.log('statusCode: ' + 200);
             console.log(JSON.stringify(result));
@@ -197,9 +220,19 @@ exports.handler = async (event) => {
             }).then(function(response) {
                 console.log(response);
             }).catch(function (error) {
-                console.log(error);
-            });    
+                console.log(error);                       
+                statusCode = error.response.status,
+                message = error.response.data.message
+            });           
 
+            if(statusCode !== 200) {
+                const response = {
+                    statusCode: statusCode,
+                    body: message
+                }
+                console.log('returning error response: ' + JSON.stringify(response));
+                return response;
+            }
             console.log('deleted segment with name: ' + dstName);
             console.log('statusCode: ' + 200);
             console.log(JSON.stringify(result));
