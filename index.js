@@ -156,6 +156,7 @@ exports.handler = async (event) => {
             });
 
             console.log('created Split segment with srcName: ' + dstName + ' (' + srcId + ')');
+            console.log('statusCode: ' + 200);
             console.log(JSON.stringify(result));
             const response = {
                 statusCode: 200,
@@ -182,6 +183,7 @@ exports.handler = async (event) => {
             });    
 
             console.log('deleted segment with name: ' + dstName);
+            console.log('statusCode: ' + 200);
             console.log(JSON.stringify(result));
             const response = {
                 statusCode: 200,
@@ -193,6 +195,7 @@ exports.handler = async (event) => {
         result.type = "audience_membership_change_request";
         if(!body.user_profiles) {
             console.log('no user_profiles found in request');
+            console.log('statusCode: ' + 200);
             console.log(JSON.stringify(result));
             const response = {
                 statusCode: 200,
@@ -283,7 +286,7 @@ exports.handler = async (event) => {
         }
         return response;
     }
-
+    console.log('statusCode: ' + 200);
     console.log(JSON.stringify(result));
     const response = {
         statusCode: 200,
