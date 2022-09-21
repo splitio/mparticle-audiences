@@ -181,7 +181,7 @@ exports.handler = async (event) => {
                 console.log(error);
             });    
 
-            console.log('deleted split with name: ' + dstName);
+            console.log('deleted segment with name: ' + dstName);
             console.log(JSON.stringify(result));
             const response = {
                 statusCode: 200,
@@ -247,7 +247,9 @@ exports.handler = async (event) => {
                         console.log(response);
                     }).catch(function (error) {
                         console.log(error);
-                    });                
+                    });           
+
+                    console.log('finish add mpid to segment: ' + segment_name);     
                 } else if (action === 'delete') {
                     console.log('deleting from segment: ' + segment_name);
 
@@ -268,7 +270,8 @@ exports.handler = async (event) => {
                         console.log(response);
                     }).catch(function (error) {
                         console.log(error);
-                    });                
+                    });  
+                    console.log('finish remove mpid from segment: ' + segment_name);              
                 }
             }
         }
