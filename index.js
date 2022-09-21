@@ -193,7 +193,7 @@ exports.handler = async (event) => {
         result.type = "audience_membership_change_request";
         if(!body.user_profiles) {
             console.log('no user_profiles found in request');
-
+            console.log(JSON.stringify(result));
             const response = {
                 statusCode: 200,
                 body: JSON.stringify(result)
