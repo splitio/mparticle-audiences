@@ -231,6 +231,8 @@ exports.handler = async (event) => {
                 console.log(audience);
                 const action = audience.action;
                 const segment_name = convertForSplit(audience.audience_name);
+                let statusCode = 200;
+                let message = '';
                 if(action === 'add') {
                     console.log('adding to segment: ' + segment_name);          
 
@@ -250,7 +252,18 @@ exports.handler = async (event) => {
                         console.log(response);
                     }).catch(function (error) {
                         console.log(error);
+                        statusCode = error.response.status,
+                        message = error.response.data.message
                     });           
+
+                    if(statusCode !== 200) {
+                        const response = {
+                            statusCode: statusCode,
+                            body: message
+                        }
+                        console.log('returning error response: ' + JSON.stringify(response));
+                        return response;
+                    }
 
                     console.log('finish add mpid to segment: ' + segment_name);     
                 } else if (action === 'delete') {
@@ -272,8 +285,19 @@ exports.handler = async (event) => {
                     }).then(function (response) {
                         console.log(response);
                     }).catch(function (error) {
-                        console.log(error);
-                    });  
+                        console.log(error);                       
+                        statusCode = error.response.status,
+                        message = error.response.data.message
+                    });           
+
+                    if(statusCode !== 200) {
+                        const response = {
+                            statusCode: statusCode,
+                            body: message
+                        }
+                        console.log('returning error response: ' + JSON.stringify(response));
+                        return response;
+                    }
                     console.log('finish remove mpid from segment: ' + segment_name);              
                 }
             }
