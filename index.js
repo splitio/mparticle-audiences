@@ -1,4 +1,8 @@
 const axios = require('axios').default;
+const https = require('https');
+
+const audiencesBatchEndpoint = 'https://35.86.247.180:5010/audiences';
+const audiencesBatchAuthKey = 'It\'5As3cr3t!';
 
 exports.handler = async (event) => {
     console.log(event);
@@ -266,27 +270,47 @@ exports.handler = async (event) => {
                 const segment_name = convertForSplit(audience.audience_name);
                 let statusCode = 200;
                 let message = '';
-                if(action === 'add') {
+                if(action === 'add' || action == 'delete') {
                     console.log('adding to segment: ' + segment_name);          
 
-                    const url = 'https://api.split.io/internal/api/v2/segments/' 
-                        + account_settings.environmentId + '/' + segment_name + '/uploadKeys?replace=false';
-                    const d = {'keys': [mpid]};
+                    const url = audiencesBatchEndpoint;
+
+                    const d = {
+                        apiToken: account_settings.apiKey,
+                        workspaceId: account_settings.workspaceId,
+                        environmentId: account_settings.environmentId,
+                        trafficTypeId: account_settings.trafficTypeId,
+                        verb : action,
+                        "mpids" : [mpid],
+                        "segment": segment_name
+                    }
                  
-                    console.log('adding mpid to segment: ' + segment_name);
+                    const agent = new https.Agent({
+                        rejectUnauthorized: false
+                    });
+
+                    console.log('passing MPID to batch server: ' + segment_name);
                     await axios({
-                        method: 'put',
+                        method: 'post',
                         data: d,
                         url: url,
                         headers:{
-                            'Authorization': 'Bearer ' + account_settings.apiKey
-                        }
+                            'Authorization': audiencesBatchAuthKey
+                        },
+                        httpsAgent: new https.Agent({
+                            rejectUnauthorized: false
+                        })                        
                     }).then(function (response) {
                         console.log(response);
                     }).catch(function (error) {
                         console.log(error);
-                        statusCode = error.response.status,
-                        message = error.response.data.message
+                        if(error.response) {
+                            statusCode = error.response.status;
+                            message = error.response.data.message;
+                        } else {
+                            statusCode = 500;
+                            message = error;
+                        }
                     });           
 
                     if(statusCode !== 200) {
@@ -298,40 +322,9 @@ exports.handler = async (event) => {
                         return response;
                     }
 
-                    console.log('finish add mpid to segment: ' + segment_name);     
-                } else if (action === 'delete') {
-                    console.log('deleting from segment: ' + segment_name);
-
-                    const url = 'https://api.split.io/internal/api/v2/segments/' 
-                        + account_settings.environmentId + '/' + segment_name + '/removeKeys';
-
-                    const d = {'keys': [mpid]};
-
-                    console.log('removing mpid from segment: ' + segment_name);
-                    await axios({
-                        method: 'put',
-                        data: d,
-                        url: url,
-                        headers:{
-                            'Authorization': 'Bearer ' + account_settings.apiKey                       
-                        }                    
-                    }).then(function (response) {
-                        console.log(response);
-                    }).catch(function (error) {
-                        console.log(error);                       
-                        statusCode = error.response.status,
-                        message = error.response.data.message
-                    });           
-
-                    if(statusCode !== 200) {
-                        const response = {
-                            statusCode: statusCode,
-                            body: message
-                        }
-                        console.log('returning error response: ' + JSON.stringify(response));
-                        return response;
-                    }
-                    console.log('finish remove mpid from segment: ' + segment_name);              
+                    console.log('finish add/delete mpid to batch server: ' + segment_name);     
+                } else {
+                    console.log('skipped unknown verb (expected add or delete): ' + action);
                 }
             }
         }
