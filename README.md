@@ -4,6 +4,15 @@ See discussion in sibling repository:
 
 https://github.com/splitio/mparticle-audiences-batch
 
+## Configure
+
+Expects config.json at root directory, e.g.
+
+{
+  "audiencesBatchEndpoint" : "https://5.6.7.8:5010/audiences",
+  "audiencesBatchAuthKey" : "secret_batch_auth_token"
+}
+
 ## Overview
 
 A Split lambda with function URL exists as a POST-able endpoint for mParticle, which sends well formatted events.  The events can trigger creation of a new segment, or add keys to an existing segment.
