@@ -11,9 +11,6 @@ const audiencesBatchAuthKey = configJson.audiencesBatchAuthKey;
 exports.handler = async (event) => {
     console.log(event);
 
-    console.log('batch endoint: ' + audiencesBatchEndpoint);
-    console.log('batch auth: ' + audiencesBatchAuthKey);
-
     if(!event.body) {
         const response = {
             statusCode: 400,
