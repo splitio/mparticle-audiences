@@ -1,8 +1,14 @@
 # Sync mParticle Audiences to Split Segments
 
+See discussion in sibling repository:
+
+https://github.com/splitio/mparticle-audiences-batch
+
 ## Overview
 
 A Split lambda with function URL exists as a POST-able endpoint for mParticle, which sends well formatted events.  The events can trigger creation of a new segment, or add keys to an existing segment.
+
+TBD API calls to the batch server ignore the self-signed key.  This should be updated as soon as the batch server gets a proper HTTP key.
 
 ## Limitations
 
