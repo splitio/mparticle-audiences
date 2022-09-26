@@ -7,11 +7,12 @@ https://github.com/splitio/mparticle-audiences-batch
 ## Configure
 
 Expects config.json at root directory, e.g.
-
+```json
 {
   "audiencesBatchEndpoint" : "https://5.6.7.8:5010/audiences",
   "audiencesBatchAuthKey" : "secret_batch_auth_token"
 }
+```
 
 ## Overview
 
