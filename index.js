@@ -1,11 +1,18 @@
 const axios = require('axios').default;
 const https = require('https');
+const fs = require('fs');
 
-const audiencesBatchEndpoint = 'https://35.86.247.180:5010/audiences';
-const audiencesBatchAuthKey = 'It\'5As3cr3t!';
+const rawdata = fs.readFileSync('config.json');
+const configJson = JSON.parse(rawdata);
+
+const audiencesBatchEndpoint = configJson.audiencesBatchEndpoint;
+const audiencesBatchAuthKey = configJson.audiencesBatchAuthKey;
 
 exports.handler = async (event) => {
     console.log(event);
+
+    console.log('batch endoint: ' + audiencesBatchEndpoint);
+    console.log('batch auth: ' + audiencesBatchAuthKey);
 
     if(!event.body) {
         const response = {
