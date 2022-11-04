@@ -167,7 +167,49 @@ exports.handler = async (event) => {
                 message = error.response.data.message
             });           
 
-            if(statusCode !== 200) {
+            if(statusCode === 409) {
+                statusCode = 200;
+                message = 'deleted existing segment and created new';
+                
+                // delete the existing segment and create again.
+                const deleteBody = {
+                    name: dstName
+                }
+                const deleteUrl = 'https://api.split.io/internal/api/v2/segments/ws/' + account_settings.workspaceId + '/' + dstName;
+
+                console.log('deleting existing segment');
+                await axios({
+                    method: 'delete',
+                    data: deleteBody,
+                    url: deleteUrl,
+                    headers:{
+                        'Authorization': 'Bearer ' + account_settings.apiKey
+                    }
+                }).then(function (response) {
+                    console.log(response);
+                }).catch(function (error) {
+                    console.log(error);                       
+                    statusCode = error.response.status,
+                    message = error.response.data.message
+                }); 
+
+                // create again
+                console.log('creating segment (again) with admin api...');
+                await axios({
+                    method: 'post',
+                    data: d,
+                    url: url,
+                    headers:{
+                        'Authorization': 'Bearer ' + account_settings.apiKey
+                    }
+                }).then(function (response) {
+                    console.log(response);
+                }).catch(function (error) {
+                    console.log(error);                       
+                    statusCode = error.response.status,
+                    message = error.response.data.message
+                });                 
+            } else if(statusCode !== 200) {
                 const response = {
                     statusCode: statusCode,
                     body: message
